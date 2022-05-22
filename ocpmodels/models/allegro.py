@@ -122,15 +122,15 @@ class Allegro(BaseModel):
 
         res = self.model(at_data)
 
-        return res['total_energy'], res['forces']
+        return res
 
     def forward(self, data):
         if self.regress_forces:
             data.pos.requires_grad_(True)
-        energy, forces = self._forward(data)
+        res = self._forward(data)
 
         if self.regress_forces:
-            return energy, forces
+            return res['total_energy'], res['forces']
         else:
-            return energy
+            return res['total_energy']
 
