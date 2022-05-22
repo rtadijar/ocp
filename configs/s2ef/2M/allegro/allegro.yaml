@@ -1,0 +1,52 @@
+
+### This config file specifies the training procedure paremeters. ###
+### This is the other place where we can fiddle with values/optimize hyperparams. ###
+
+
+includes:
+- configs/s2ef/2M/base.yml
+
+model:
+  name: allegro
+  cutoff: 6.0
+  use_pbc: True
+  config_path: 'allegro/allegro_model_config.yaml'
+
+# *** Important note ***
+#   The total number of gpus used for this run was 8.
+#   If the global batch size (num_gpus * batch_size) is modified
+#   the lr_milestones and warmup_steps need to be adjusted accordingly.
+
+# *** We did not do the multiplication ^ *** #
+# Something to consider #
+
+# For finding optim params, it is worth to look into the configs for the other models for a given dataset size (2M in this case)
+
+optim:
+  batch_size: 6 # Original batchsize was 24, so 8 GPUs * 4. I can fit around 6 on my GPU, Lisa may do more
+  eval_batch_size: 4
+  num_workers: 16
+  lr_initial: 0.002
+  lr_gamma: 0.1
+  ema_decay: 0.99
+  lr_milestones: # steps at which lr_initial <- lr_initial * lr_gamma
+    - 52083 
+    - 83333
+    - 104166
+  warmup_steps: 31250
+  warmup_factor: 0.2
+  max_epochs: 30
+  force_coefficient: 1
+  #Scheduler
+  lr_scheduler_name: ReduceLROnPlateau
+  lr_scheduler_patience: 50
+  lr_scheduler_factor: 0.5
+  
+  optimizer: Adam
+  optimizer_params:
+    amsgrad: false
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-08
+    weight_decay: 0.
