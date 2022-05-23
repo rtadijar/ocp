@@ -10,7 +10,7 @@ model:
   name: allegro
   cutoff: 6.0
   use_pbc: True
-  config_path: 'allegro/allegro_model_config.yaml'
+  config_path: 'allegro/allegro_energy_config.yaml'
   regress_forces: False
 
 # *** Important note ***

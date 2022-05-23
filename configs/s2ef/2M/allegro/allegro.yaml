@@ -10,7 +10,7 @@ model:
   name: allegro
   cutoff: 6.0
   use_pbc: True
-  config_path: 'allegro/allegro_model_config.yaml'
+  config_path: 'allegro/allegro_forces_config.yaml'
 
 # *** Important note ***
 #   The total number of gpus used for this run was 8.
