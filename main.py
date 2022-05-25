@@ -5,6 +5,8 @@ This source code is licensed under the MIT license found in the
 LICENSE file in the root directory of this source tree.
 """
 
+import wandb
+
 import copy
 import logging
 import os
@@ -52,7 +54,7 @@ class Runner(submitit.helpers.Checkpointable):
                 is_debug=config.get("is_debug", False),
                 print_every=config.get("print_every", 10),
                 seed=config.get("seed", 0),
-                logger=config.get("logger", "tensorboard"),
+                logger=config.get("logger", "wandb"),
                 local_rank=config["local_rank"],
                 amp=config.get("amp", False),
                 cpu=config.get("cpu", False),
@@ -86,6 +88,11 @@ if __name__ == "__main__":
     parser = flags.get_parser()
     args, override_args = parser.parse_known_args()
     config = build_config(args, override_args)
+
+    if wandb.init() and wandb.config is not None:
+        for key, value in wandb.config.items():
+            if key in config['optim']:
+                config['optim'][key] = value
 
     if args.submit:  # Run on cluster
         slurm_add_params = config.get(
