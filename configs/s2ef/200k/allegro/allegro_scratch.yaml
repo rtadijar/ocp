@@ -26,7 +26,7 @@ model:
 logger: wandb
 
 optim:
-  batch_size: 20 # Original batchsize was 24, so 8 GPUs * 4. I can fit around 6 on my GPU, Lisa may do more
+  batch_size: 18 # Original batchsize was 24, so 8 GPUs * 4. I can fit around 6 on my GPU, Lisa may do more
   #eval_batch_size: 16
   eval_every: 50000000
   num_workers: 3
