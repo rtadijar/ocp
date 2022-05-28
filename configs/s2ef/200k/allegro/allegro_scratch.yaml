@@ -28,7 +28,7 @@ logger: wandb
 optim:
   batch_size: 20 # Original batchsize was 24, so 8 GPUs * 4. I can fit around 6 on my GPU, Lisa may do more
   #eval_batch_size: 16
-  #eval_every: 6250
+  eval_every: 50000000
   num_workers: 3
   lr_initial: 0.0001
   ema_decay: 0.99
@@ -39,10 +39,10 @@ optim:
   #lr_scheduler_name: ReduceLROnPlateau
   #lr_scheduler_patience: 50
   #lr_scheduler_factor: 0.5
-  scheduler: Null
-  #mode: min
-  #factor: 0.8
-  #patience: 100
+  scheduler: ReduceLROnPlateau
+  mode: min
+  factor: 1.0
+  patience: 100
   #warmup_steps: 103
   # lr_milestones: # steps at which lr_initial <- lr_initial * lr_gamma
   # - 101
