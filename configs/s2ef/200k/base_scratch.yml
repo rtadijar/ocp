@@ -7,7 +7,7 @@ dataset:
     target_std: 2.887317180633545
     grad_target_mean: 0.0
     grad_target_std: 2.887317180633545
-  - src: /scratch/ocp_data/val_id/
+  #- src: /scratch/ocp_data/val_id/
 
 logger: wandb
 
