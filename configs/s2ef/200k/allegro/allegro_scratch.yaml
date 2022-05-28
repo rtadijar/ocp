@@ -4,13 +4,14 @@
 
 
 includes:
-- configs/s2ef/200k/base.yml
+- configs/s2ef/200k/base_scratch.yml
 
 model:
   name: allegro
   cutoff: 6.0
   use_pbc: True
   config_path: 'allegro/allegro_forces_config.yaml'
+  regress_forces: True
 
 # *** Important note ***
 #   The total number of gpus used for this run was 8.
@@ -23,21 +24,30 @@ model:
 # For finding optim params, it is worth to look into the configs for the other models for a given dataset size (2M in this case)
 
 optim:
-  batch_size: 32
-  eval_batch_size: 32
-  num_workers: 16
-  lr_initial: 0.002
+  batch_size: 24 # Original batchsize was 24, so 8 GPUs * 4. I can fit around 6 on my GPU, Lisa may do more
+  eval_batch_size: 24
+  eval_every: 3000
+  num_workers: 3
+  lr_initial: 0.0001
   ema_decay: 0.99
 
-  max_epochs: 1
-  force_coefficient: 1
-  
+
+  max_epochs: 4
   #Scheduler
-  lr_scheduler_name: ReduceLROnPlateau
+  #lr_scheduler_name: ReduceLROnPlateau
+  #lr_scheduler_patience: 50
+  #lr_scheduler_factor: 0.5
+  scheduler: ReduceLROnPlateau
   mode: min
   factor: 0.8
-  patience: 3
-  
+  patience: 100
+  #warmup_steps: 103
+  # lr_milestones: # steps at which lr_initial <- lr_initial * lr_gamma
+  # - 101
+  # - 102
+  # - 103
+
+
   optimizer: Adam
   optimizer_params:
     amsgrad: false

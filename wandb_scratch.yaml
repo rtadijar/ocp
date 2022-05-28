@@ -1,0 +1,13 @@
+command:
+  - srun
+  - python
+  - main.py
+  - --mode=train
+  - --config-yml=configs/s2ef/200k/allegro/allegro_scratch.yaml
+method: grid
+metric:
+  goal: minimize
+  name: mae
+parameters:
+  force_coefficient: 
+    values: [1000,100]
