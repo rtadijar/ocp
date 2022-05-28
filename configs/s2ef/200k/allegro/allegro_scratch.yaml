@@ -41,7 +41,7 @@ optim:
   #lr_scheduler_factor: 0.5
   scheduler: ReduceLROnPlateau
   mode: min
-  factor: 1.0
+  factor: 0.9
   patience: 100
   #warmup_steps: 103
   # lr_milestones: # steps at which lr_initial <- lr_initial * lr_gamma
