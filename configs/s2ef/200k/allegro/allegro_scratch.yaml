@@ -23,6 +23,8 @@ model:
 
 # For finding optim params, it is worth to look into the configs for the other models for a given dataset size (2M in this case)
 
+logger: wandb
+
 optim:
   batch_size: 16 # Original batchsize was 24, so 8 GPUs * 4. I can fit around 6 on my GPU, Lisa may do more
   eval_batch_size: 16
