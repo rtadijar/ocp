@@ -9,7 +9,7 @@ metric:
   goal: minimize
   name: mae
 parameters:
-  lr_inital: 
+  lr_initial: 
     value: 0.001
   force_coefficient: 
     values: [1000,100]
