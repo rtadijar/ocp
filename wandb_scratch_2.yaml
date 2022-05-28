@@ -10,8 +10,8 @@ metric:
   name: mae
 parameters:
   lr_initial: 
-    value: 0.001
+    value: 0.002
   force_coefficient: 
-    values: [1000,100]
+    value: 100
         
 
