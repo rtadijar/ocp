@@ -3,7 +3,7 @@
 
 ### Dataset-relevant values
 num_types: 84
-avg_num_neighbors: 33
+avg_num_neighbors: 37
 
 # -- network --
 model_builders:

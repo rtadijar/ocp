@@ -7,8 +7,10 @@ __all__ = [
     "BaseTrainer",
     "ForcesTrainer",
     "EnergyTrainer",
+    "StructureTrainer"
 ]
 
 from .base_trainer import BaseTrainer
 from .energy_trainer import EnergyTrainer
 from .forces_trainer import ForcesTrainer
+from .structure_trainer import StructureTrainer

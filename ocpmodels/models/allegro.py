@@ -81,8 +81,10 @@ class Allegro(BaseModel):
     @conditional_grad(torch.enable_grad())
     def _forward(self, data):
         # Get node features
+        if self.regress_forces:
+            data.pos.requires_grad_(True)    
         pos = data.pos
-
+        
         if self.otf_graph:
             edge_index, cell_offsets, neighbors = radius_graph_pbc(
                 data, self.cutoff, 50
@@ -101,7 +103,6 @@ class Allegro(BaseModel):
                 data.cell_offsets,
                 data.neighbors,
             )
-
             data.edge_index = out["edge_index"]
             distances = out["distances"]
         else:
@@ -121,16 +122,22 @@ class Allegro(BaseModel):
         at_data['edge_cell_shift'] = at_data['cell_offsets'].float()
 
         res = self.model(at_data)
-
+        
+        if self.regress_forces:
+            energy = res["total_energy"]
+            forces = torch.autograd.grad(
+                    energy,
+                    data.pos,
+                    grad_outputs=torch.ones_like(energy),
+                    create_graph=True,
+                )[0]
+            res["force"] = forces
         return res
 
     def forward(self, data):
-        if self.regress_forces:
-            data.pos.requires_grad_(True)
         res = self._forward(data)
-
         if self.regress_forces:
-            return res['total_energy'], res['forces']
+            return res['total_energy'], res['force']
         else:
             return res['total_energy']
 
