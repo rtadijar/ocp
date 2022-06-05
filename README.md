@@ -2,18 +2,10 @@
 
 [![CircleCI](https://circleci.com/gh/Open-Catalyst-Project/ocp.svg?style=shield)](https://circleci.com/gh/Open-Catalyst-Project/ocp)
 
-ocp-models is the modeling codebase for the [Open Catalyst Project](https://opencatalystproject.org/).
+This fork is based on the ocp-models [codebase](https://github.com/Open-Catalyst-Project/ocp) for the [Open Catalyst Project](https://opencatalystproject.org/).
 
-It provides implementations of state-of-the-art ML algorithms for catalysis that
-take arbitrary chemical structures as input to predict energy / forces / positions:
-
-- [GemNet](https://arxiv.org/abs/2106.08903)
-- [SpinConv](https://arxiv.org/abs/2106.09575)
-- [DimeNet++](https://arxiv.org/abs/2011.14115)
-- [ForceNet](https://arxiv.org/abs/2103.01436)
-- [DimeNet](https://arxiv.org/abs/2003.03123)
-- [SchNet](https://arxiv.org/abs/1706.08566)
-- [CGCNN](https://link.aps.org/doi/10.1103/PhysRevLett.120.145301)
+It provides implementations for the Allegro model ([code](https://github.com/mir-group/allegro.git), [paper](https://arxiv.org/abs/2204.05249)) for catalysis taking arbitrary chemical structures as input to predict energy / forces / positions.
+Specifically this codebase extracts and adapts the Allegro implementation based on [Nequip](https://github.com/mir-group/nequip) to the ocp-models codebase.
 
 ## Installation
 
@@ -21,36 +13,27 @@ The easiest way to install prerequisites is via [conda](https://conda.io/docs/in
 
 After installing [conda](http://conda.pydata.org/), run the following commands
 to create a new [environment](https://conda.io/docs/user-guide/tasks/manage-environments.html)
-named `ocp-models` and install dependencies.
+named `ocp-allegro` and install dependencies.
 
-### Pre-install step
+### GPU installation
 
-Install `conda-merge`:
-```bash
-pip install conda-merge
-```
-If you're using system `pip`, then you may want to add the `--user` flag to avoid using `sudo`.
-Check that you can invoke `conda-merge` by running `conda-merge -h`.
+Instructions are for PyTorch 1.10.0, CUDA 11.3 specifically.
 
-### GPU machines
-
-Instructions are for PyTorch 1.9.0, CUDA 10.2 specifically.
 
 First, check that CUDA is in your `PATH` and `LD_LIBRARY_PATH`, e.g.
 ```bash
 $ echo $PATH | tr ':' '\n' | grep cuda
-/public/apps/cuda/10.2/bin
+/public/apps/cuda/11.3/bin
 
 $ echo $LD_LIBRARY_PATH | tr ':' '\n' | grep cuda
-/public/apps/cuda/10.2/lib64
+/public/apps/cuda/11.3/lib64
 ```
 
 The exact paths may differ on your system.
 
 Then install the dependencies:
 ```bash
-conda-merge env.common.yml env.gpu.yml > env.yml
-conda env create -f env.yml
+conda env create -f env.allegro.yml
 ```
 Activate the conda environment with `conda activate ocp-models`.
 
@@ -61,99 +44,50 @@ Finally, install the pre-commit hooks:
 pre-commit install
 ```
 
-#### Ampere GPUs
+### Allegro requirements
 
-NVIDIA Ampere cards require a CUDA version >= 11.1 to function properly, modify the lines [here](https://github.com/Open-Catalyst-Project/ocp/blob/master/env.gpu.yml#L6-L8) to
-```
-- cudatoolkit=11.1
-- -f https://pytorch-geometric.com/whl/torch-1.9.0+cu111.html
-```
+To use Allegro for OCP we first need to install the Allegro code requirements.
 
-### CPU-only machines
-
-Please skip the following if you completed the with-GPU installation from above.
+Currently adapting the Allegro model for our purposes is only possibly by slightly modifying the Nequip codebase.
+Therefore one must install our fork of Nequip from source by executing the following commands:
 
 ```bash
-conda-merge env.common.yml env.cpu.yml > env.yml
-conda env create -f env.yml
-conda activate ocp-models
-pip install -e .
-pre-commit install
+git clone https://github.com/B-Czarnetzki/nequip.git
+cd nequip
+pip install .
 ```
 
-### Mac CPU-only machines
-
-Only run the following if installing on a CPU only machine running Mac OS X.
-
-```
-conda env create -f env.common.yml
-conda activate ocp-models
-MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ pip install torch-cluster torch-scatter torch-sparse torch-spline-conv -f https://pytorch-geometric.com/whl/torch-1.9.0+cpu.html
-pip install -e .
-pre-commit install
-```
-
-## Download data
-
-Dataset download links for all tasks can be found at [DATASET.md](https://github.com/Open-Catalyst-Project/ocp/blob/master/DATASET.md).
-
-IS2* datasets are stored as LMDB files and are ready to be used upon download.
-S2EF train+val datasets require an additional preprocessing step.
-
-For convenience, a self-contained script can be found [here](https://github.com/Open-Catalyst-Project/ocp/blob/master/scripts/download_data.py) to download, preprocess, and organize the data directories to be readily usable by the existing [configs](https://github.com/Open-Catalyst-Project/ocp/tree/master/configs).
-
-For IS2*, run the script as:
+Finally install Allegro itself.
 
 ```bash
-python scripts/download_data.py --task is2re
+git clone --depth 1 https://github.com/mir-group/allegro.git
+cd allegro
+pip install .
 ```
 
-For S2EF train/val, run the script as:
 
-```bash
-python scripts/download_data.py --task s2ef --split SPLIT_SIZE --get-edges --num-workers WORKERS --ref-energy
-```
+## Download data,
 
-- `--split`: split size to download: `"200k", "2M", "20M", "all", "val_id", "val_ood_ads", "val_ood_cat", or "val_ood_both"`.
-- `--get-edges`: includes edge information in LMDBs (~10x storage requirement, ~3-5x slowdown), otherwise, compute edges on the fly (larger GPU memory requirement).
-- `--num-workers`: number of workers to parallelize preprocessing across.
-- `--ref-energy`: uses referenced energies instead of raw energies.
-
-For S2EF test, run the script as:
-```bash
-python scripts/download_data.py --task s2ef --split test
-```
-
-To download and process the dataset in a directory other than your local `ocp/data` folder, add the following command line argument `--data-path`. NOTE - the baseline [configs](https://github.com/Open-Catalyst-Project/ocp/tree/master/configs) expects the data to be found in `ocp/data`, make sure you symlink your directory or modify the paths in the configs accordingly.
-
+Consult [DATASET.md](https://github.com/Open-Catalyst-Project/ocp/blob/main/DATASET.md) for dataset download links and instructions.
 
 ## Train and evaluate models
 
-A detailed description of how to train and evaluate models, run ML-based
-relaxations, and generate EvalAI submission files can be found
-[here](https://github.com/Open-Catalyst-Project/ocp/blob/master/TRAIN.md).
+For a detailed description of how to train and evaluate models using the ocp-models codebase consult [TRAIN.md](https://github.com/Open-Catalyst-Project/ocp/blob/main/TRAIN.md).
 
-Our evaluation server is [hosted on EvalAI](https://eval.ai/web/challenges/challenge-page/712/overview).
-Numbers (in papers, etc.) should be reported from the evaluation server.
+To run an Allegro model on the OC20 dataset point to one of the allegro.yaml files. For example:
+```bash
+python main.py --mode train --config-yml configs/s2ef/200k/allegro/allegro.yaml
+```
+These configs point to an Allegro specific config file.
+```bash
+config_path: 'allegro/allegro_forces_config.yaml'
+```
+To change allegro model hyperparameters like the number of layers or lmax they have to be changed in that config file.
 
-## Pretrained models
+## Logging
 
-Pretrained model weights accompanying [our paper](https://arxiv.org/abs/2010.09990) are available [here](https://github.com/Open-Catalyst-Project/ocp/blob/master/MODELS.md).
+This code supports W&B and Tensorboard logging. The logger can be changed in the config file.
 
-## Tutorials
-
-Interactive tutorial notebooks can be found [here](https://github.com/Open-Catalyst-Project/ocp/tree/master/tutorials) to help familirize oneself with various components of the repo.
-
-## Discussion
-
-For all non-codebase related questions and to keep up-to-date with the latest OCP announcements, please join the [discussion board](https://discuss.opencatalystproject.org/). All codebase related questions and issues should be posted directly on our [issues page](https://github.com/Open-Catalyst-Project/ocp/issues).
-
-## Acknowledgements
-
-- This codebase was initially forked from [CGCNN](https://github.com/txie-93/cgcnn)
-by [Tian Xie](http://txie.me), but has undergone significant changes since.
-- A lot of engineering ideas have been borrowed from [github.com/facebookresearch/mmf](https://github.com/facebookresearch/mmf).
-- The DimeNet++ implementation is based on the [author's Tensorflow implementation](https://github.com/klicperajo/dimenet) and the [DimeNet implementation in Pytorch Geometric](https://github.com/rusty1s/pytorch_geometric/blob/master/torch_geometric/nn/models/dimenet.py).
 
 ## Citation
 
