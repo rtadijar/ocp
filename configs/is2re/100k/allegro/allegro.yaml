@@ -1,19 +1,19 @@
 includes:
-- configs/s2ef/200k/base.yml
+- configs/is2re/100k/base.yml
 
 model:
   name: allegro
   cutoff: 6.0
   use_pbc: True
-  config_path: 'allegro/allegro_forces_config.yaml'
-  regress_forces: True
+  config_path: 'allegro/allegro_energy_config.yaml'
+  regress_forces: False
 
 logger: wandb
 
 optim:
   batch_size: 16
   eval_batch_size: 16
-  eval_every: 12500
+  eval_every: 6250
   num_workers: 3
   lr_initial: 0.002
   ema_decay: 0.99
